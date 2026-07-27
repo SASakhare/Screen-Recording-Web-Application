@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Screen Recorder App — Complete Build Notes (Web + Electron)</title>
+<style>
+  :root{
+    --bg:#0f1117; --panel:#171a23; --panel2:#1e2230; --text:#e8eaf0; --muted:#9aa3b5;
+    --accent:#7c9eff; --accent2:#ff9d7c; --code:#0b0d13; --border:#2a2f3f; --good:#7cffa0;
+  }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:'Segoe UI',Roboto,Arial,sans-serif;line-height:1.65;margin:0;padding:0 0 80px;}
+  .wrap{max-width:980px;margin:0 auto;padding:40px 24px;}
+  h1{font-size:2.1rem;margin-bottom:4px;color:#fff;}
+  .subtitle{color:var(--muted);margin-top:0;margin-bottom:32px;font-size:1.05rem;}
+  h2{color:var(--accent);border-bottom:2px solid var(--border);padding-bottom:8px;margin-top:56px;font-size:1.5rem;}
+  h3{color:var(--accent2);margin-top:28px;font-size:1.15rem;}
+  h4{color:#fff;margin-bottom:6px;}
+  p{color:var(--text);}
+  .muted{color:var(--muted);}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin:18px 0;}
+  .card2{background:var(--panel2);border-left:4px solid var(--accent);border-radius:8px;padding:14px 18px;margin:16px 0;}
+  .warn{border-left-color:var(--accent2);}
+  .good{border-left-color:var(--good);}
+  code{background:var(--code);color:#c6e2ff;padding:2px 6px;border-radius:4px;font-family:Consolas,Monaco,monospace;font-size:0.92em;}
+  pre{background:var(--code);border:1px solid var(--border);border-radius:10px;padding:16px 18px;overflow-x:auto;}
+  pre code{background:none;padding:0;color:#d8e6ff;}
+  ul,ol{padding-left:22px;}
+  li{margin-bottom:8px;}
+  table{width:100%;border-collapse:collapse;margin:16px 0;}
+  th,td{border:1px solid var(--border);padding:10px 12px;text-align:left;font-size:0.95rem;}
+  th{background:var(--panel2);color:#fff;}
+  tr:nth-child(even) td{background:#151822;}
+  .toc{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:20px 26px;}
+  .toc a{color:var(--accent);text-decoration:none;}
+  .toc a:hover{text-decoration:underline;}
+  .badge{display:inline-block;background:var(--accent);color:#0b0d13;font-weight:600;padding:2px 10px;border-radius:20px;font-size:0.78rem;margin-left:8px;}
+  .step{display:flex;gap:14px;margin:14px 0;}
+  .step .num{background:var(--accent);color:#0b0d13;font-weight:700;border-radius:50%;width:30px;height:30px;flex:none;display:flex;align-items:center;justify-content:center;}
+  .step .content{flex:1;}
+  hr{border:none;border-top:1px solid var(--border);margin:40px 0;}
+  .flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0;}
+  .flow div{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:0.9rem;}
+  .flow span{color:var(--muted);}
+  footer{text-align:center;color:var(--muted);margin-top:60px;font-size:0.85rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>🎥 Screen Recorder App — Complete Notes</h1>
+<p class="subtitle">Web App (Browser) → Desktop App (Electron) | Same UI, Same Logic | Written in simple language</p>
+
+<div class="toc">
+<b>Contents</b>
+<ol>
+  <li><a href="#part1">What we are building (in plain words)</a></li>
+  <li><a href="#part2">Core Web APIs you need to know</a></li>
+  <li><a href="#part3">Web App — Step by step build</a></li>
+  <li><a href="#part4">Web App — Full working code</a></li>
+  <li><a href="#part5">Turning it into a Desktop App (Electron)</a></li>
+  <li><a href="#part6">Electron — Full working code</a></li>
+  <li><a href="#part7">Differences: Web vs Electron version</a></li>
+  <li><a href="#part8">Full Tech Stack Recommendation</a></li>
+  <li><a href="#part9">Packaging & Distribution (installers)</a></li>
+  <li><a href="#part10">Common problems & fixes</a></li>
+  <li><a href="#part11">Suggested project structure</a></li>
+</ol>
+</div>
+
+<h2 id="part1">1. What We Are Building (Plain Words)</h2>
+<div class="card">
+<p>Think of it like Loom / OBS-lite. The app should let a user:</p>
+<ul>
+  <li><b>Turn on webcam</b> — small camera preview (like a bubble, optional overlay on the recording).</li>
+  <li><b>Choose what to record</b> — a popup where user picks: entire screen, one window, or one browser tab.</li>
+  <li><b>Start</b> button — begins recording video (and usually audio too).</li>
+  <li><b>Stop</b> button — ends the recording.</li>
+  <li><b>Save</b> button — downloads/saves the recorded video file (usually <code>.webm</code> or <code>.mp4</code>) to the user's computer.</li>
+</ul>
+<p>The two key browser technologies that make this possible are:</p>
+<ol>
+  <li><code>getDisplayMedia()</code> — asks the OS to show a "pick a screen/window/tab" popup and gives you that video as a stream.</li>
+  <li><code>MediaRecorder</code> — takes any video/audio stream and records it into a file in memory, which you can then save.</li>
+</ol>
+</div>
+
+<h2 id="part2">2. Core Web APIs You Need to Know</h2>
+
+<h3>2.1 <code>navigator.mediaDevices.getDisplayMedia()</code></h3>
+<div class="card">
+<p>This is the API that shows the browser's native "Choose what to share" window — the same popup you see on Google Meet/Zoom when sharing your screen. The browser itself provides the UI for choosing Screen / Window / Tab — <b>you do not need to build that selection UI yourself</b>, the browser gives it for free.</p>
+<pre><code>const screenStream = await navigator.mediaDevices.getDisplayMedia({
+  video: { frameRate: 30 },
+  audio: true // captures system/tab audio if user allows it
+});
+</code></pre>
+<div class="card2">
+<b>Simple way to understand it:</b> This function returns a "stream" — think of a stream like a live pipe of video frames (and maybe audio) coming from whatever the user picked.
+</div>
+</div>
+
+<h3>2.2 <code>navigator.mediaDevices.getUserMedia()</code></h3>
+<div class="card">
+<p>This gets access to the webcam and microphone (separate from screen).</p>
+<pre><code>const camStream = await navigator.mediaDevices.getUserMedia({
+  video: true,
+  audio: true
+});
+</code></pre>
+<p>You show this in a small <code>&lt;video&gt;</code> element (muted, autoplay) as the "camera preview bubble".</p>
+</div>
+
+<h3>2.3 <code>MediaRecorder</code></h3>
+<div class="card">
+<p>This is the actual "recorder". You give it a stream, call <code>.start()</code>, and it collects data chunks as the recording happens. When you call <code>.stop()</code>, you combine those chunks into one file (a Blob) which you can download.</p>
+<pre><code>const recorder = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9' });
+let chunks = [];
+
+recorder.ondataavailable = (e) => chunks.push(e.data);
+recorder.onstop = () => {
+  const blob = new Blob(chunks, { type: 'video/webm' });
+  const url = URL.createObjectURL(blob);
+  // use url to preview or download
+};
+
+recorder.start();
+// later...
+recorder.stop();
+</code></pre>
+</div>
+
+<h3>2.4 Combining Screen + Webcam (optional but common)</h3>
+<div class="card">
+<p>If you want the webcam bubble to actually be "baked into" the saved video (like Loom does), you need to merge both streams visually using an HTML <code>&lt;canvas&gt;</code>:</p>
+<ol>
+  <li>Draw the screen-share video frame onto a canvas every frame (using <code>requestAnimationFrame</code>).</li>
+  <li>Draw the webcam video frame on top, in a corner, as a small circle/rectangle.</li>
+  <li>Capture the canvas itself as a stream using <code>canvas.captureStream(30)</code>.</li>
+  <li>Feed <i>that</i> combined stream into <code>MediaRecorder</code> instead of the raw screen stream.</li>
+</ol>
+<div class="card2 good"><b>Simpler alternative:</b> If you don't need the webcam burned into the video, just record the screen stream and show webcam only as a live preview (not saved). Much simpler to build — good for a first version.</div>
+</div>
+
+<h2 id="part3">3. Web App — Step by Step Build</h2>
+
+<div class="step"><div class="num">1</div><div class="content">
+<b>Build the UI:</b> A video preview area (big — for screen), a small video preview (webcam bubble), and 3 buttons: Start, Stop, Save. Also a dropdown/info text showing what's about to be captured.
+</div></div>
+
+<div class="step"><div class="num">2</div><div class="content">
+<b>On "Start" click:</b>
+<ol>
+<li>Call <code>getDisplayMedia()</code> → this pops up the browser's native screen/window/tab picker automatically.</li>
+<li>Call <code>getUserMedia()</code> → gets webcam feed (optional).</li>
+<li>If combining, set up a canvas + <code>requestAnimationFrame</code> loop to merge both feeds.</li>
+<li>Create a <code>MediaRecorder</code> on the final stream, and call <code>.start()</code>.</li>
+</ol>
+</div></div>
+
+<div class="step"><div class="num">3</div><div class="content">
+<b>On "Stop" click:</b> call <code>recorder.stop()</code> and also stop all the individual media tracks (<code>track.stop()</code>) so the "sharing" indicator in the browser goes away and camera/mic are released.
+</div></div>
+
+<div class="step"><div class="num">4</div><div class="content">
+<b>On "Save" click (or automatically after stop):</b> take the recorded Blob, create a temporary link element with <code>download</code> attribute, and click it programmatically — this triggers the browser's normal file save/download.
+</div></div>
+
+<div class="step"><div class="num">5</div><div class="content">
+<b>Bonus:</b> Also show a <code>&lt;video&gt;</code> playback preview of the recorded Blob right after stopping, so the user can review before saving.
+</div></div>
+
+<h2 id="part4">4. Web App — Full Working Code</h2>
+
+<h3>4.1 <code>index.html</code></h3>
+<pre><code>&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;title&gt;Screen Recorder&lt;/title&gt;
+  &lt;style&gt;
+    body { font-family: sans-serif; text-align:center; background:#111; color:#eee; }
+    #screenPreview { width: 70%; border-radius: 10px; border:2px solid #444; }
+    #camPreview {
+      width: 160px; position: fixed; bottom: 20px; right: 20px;
+      border-radius: 50%; border: 3px solid #7c9eff; object-fit: cover; height:160px;
+    }
+    button { padding: 10px 22px; margin: 6px; font-size: 15px; border-radius: 8px; border:none; cursor:pointer;}
+    #startBtn{background:#7cffa0;} #stopBtn{background:#ff8080;} #saveBtn{background:#7c9eff;color:#fff;}
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h2&gt;Screen Recorder&lt;/h2&gt;
+  &lt;video id="screenPreview" autoplay muted&gt;&lt;/video&gt;
+  &lt;video id="camPreview" autoplay muted&gt;&lt;/video&gt;
+  &lt;br&gt;
+  &lt;button id="startBtn"&gt;Start&lt;/button&gt;
+  &lt;button id="stopBtn" disabled&gt;Stop&lt;/button&gt;
+  &lt;button id="saveBtn" disabled&gt;Save&lt;/button&gt;
+
+  &lt;script src="recorder.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</code></pre>
+
+<h3>4.2 <code>recorder.js</code></h3>
+<pre><code>let mediaRecorder;
+let recordedChunks = [];
+let screenStream, camStream;
+
+const screenPreview = document.getElementById('screenPreview');
+const camPreview = document.getElementById('camPreview');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const saveBtn = document.getElementById('saveBtn');
+
+startBtn.onclick = async () => {
+  recordedChunks = [];
+
+  // 1. Ask user to pick screen / window / tab (native browser popup)
+  screenStream = await navigator.mediaDevices.getDisplayMedia({
+    video: { frameRate: 30 },
+    audio: true
+  });
+
+  // 2. Get webcam (optional, just for preview here)
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+    camPreview.srcObject = camStream;
+  } catch (e) {
+    console.log('No webcam available or permission denied');
+  }
+
+  screenPreview.srcObject = screenStream;
+
+  // 3. Set up recorder on the screen stream
+  mediaRecorder = new MediaRecorder(screenStream, { mimeType: 'video/webm; codecs=vp9' });
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) recordedChunks.push(e.data);
+  };
+
+  mediaRecorder.onstop = () => {
+    saveBtn.disabled = false;
+  };
+
+  mediaRecorder.start();
+
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+
+  // If user stops sharing from the browser's own "Stop sharing" bar
+  screenStream.getVideoTracks()[0].onended = () => stopBtn.onclick();
+};
+
+stopBtn.onclick = () => {
+  mediaRecorder.stop();
+  screenStream.getTracks().forEach(track => track.stop());
+  if (camStream) camStream.getTracks().forEach(track => track.stop());
+
+  startBtn.disabled = false;
+  stopBtn.disabled = true;
+};
+
+saveBtn.onclick = () => {
+  const blob = new Blob(recordedChunks, { type: 'video/webm' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `recording-${Date.now()}.webm`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  saveBtn.disabled = true;
+};
+</code></pre>
+
+<div class="card2 good">
+<b>That's a fully working web version in ~60 lines.</b> The browser itself handles the "choose window/screen/tab" step — you never build that picker manually on the web.
+</div>
+
+<h2 id="part5">5. Turning It Into a Desktop App (Electron)</h2>
+
+<div class="card">
+<p>Electron lets you package a website (HTML/CSS/JS) into a real installable desktop app (.exe / .dmg / .AppImage), using Chromium + Node.js under the hood. Good news: <b>90% of your web code stays exactly the same</b>. The only real change is <i>how you get the list of screens/windows to record</i>, because on desktop, the browser's automatic picker isn't used — instead Electron gives you a raw list via an API called <code>desktopCapturer</code>, and <b>you build your own little "choose a window" UI</b> (a grid of thumbnails) instead of relying on the browser's popup.</p>
+</div>
+
+<h3>5.1 Electron Architecture (simple explanation)</h3>
+<div class="flow">
+  <div>Main Process<br><span>(Node.js, controls windows, OS access)</span></div>
+  <span>↔ IPC ↔</span>
+  <div>Renderer Process<br><span>(Your HTML/CSS/JS — the UI)</span></div>
+  <span>↔ preload.js ↔</span>
+  <div>Secure Bridge<br><span>(exposes only safe functions)</span></div>
+</div>
+<div class="card">
+<ul>
+<li><b>Main process</b> (<code>main.js</code>) — the "backend" of your desktop app. Creates windows, and can call <code>desktopCapturer.getSources()</code> to list all available screens/windows with thumbnail images.</li>
+<li><b>Renderer process</b> — this is literally your existing web app UI (index.html + recorder.js), running inside a Chromium window.</li>
+<li><b>Preload script</b> — a safe "bridge" file that exposes only specific functions from Main to the Renderer (best practice = keep <code>contextIsolation: true</code> and <code>nodeIntegration: false</code> for security).</li>
+</ul>
+</div>
+
+<h3>5.2 Step-by-step</h3>
+<div class="step"><div class="num">1</div><div class="content">Install Electron: <code>npm install --save-dev electron</code></div></div>
+<div class="step"><div class="num">2</div><div class="content">Create <code>main.js</code> — creates the app window and handles a request "give me the list of sources" using <code>desktopCapturer.getSources()</code>.</div></div>
+<div class="step"><div class="num">3</div><div class="content">Create <code>preload.js</code> — exposes a safe function like <code>window.electronAPI.getSources()</code> to your existing renderer code.</div></div>
+<div class="step"><div class="num">4</div><div class="content">Reuse your existing <code>index.html</code> and <code>recorder.js</code> — just add a small screen/window picker (a grid of thumbnails) instead of calling <code>getDisplayMedia()</code> directly with the browser popup.</div></div>
+<div class="step"><div class="num">5</div><div class="content">When user clicks a thumbnail, call <code>getUserMedia()</code> with a special constraint pointing at that specific source id — Electron supports this via <code>chromeMediaSourceId</code>.</div></div>
+<div class="step"><div class="num">6</div><div class="content">Everything else — MediaRecorder, Start/Stop/Save — <b>stays 100% identical to the web version.</b></div></div>
+
+<h2 id="part6">6. Electron — Full Working Code</h2>
+
+<h3>6.1 <code>main.js</code></h3>
+<pre><code>const { app, BrowserWindow, ipcMain, desktopCapturer } = require('electron');
+const path = require('path');
+
+function createWindow() {
+  const win = new BrowserWindow({
+    width: 1000,
+    height: 700,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true,
+      nodeIntegration: false
+    }
+  });
+  win.loadFile('index.html');
+}
+
+// Renderer asks: "give me the list of screens/windows"
+ipcMain.handle('get-sources', async () => {
+  const sources = await desktopCapturer.getSources({
+    types: ['window', 'screen'],
+    thumbnailSize: { width: 200, height: 150 }
+  });
+  // Send only serializable data (thumbnail as data URL, not the raw object)
+  return sources.map(s => ({
+    id: s.id,
+    name: s.name,
+    thumbnail: s.thumbnail.toDataURL()
+  }));
+});
+
+app.whenReady().then(createWindow);
+app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
+</code></pre>
+
+<h3>6.2 <code>preload.js</code></h3>
+<pre><code>const { contextBridge, ipcRenderer } = require('electron');
+
+contextBridge.exposeInMainWorld('electronAPI', {
+  getSources: () => ipcRenderer.invoke('get-sources')
+});
+</code></pre>
+
+<h3>6.3 Updated <code>index.html</code> (adds a picker grid)</h3>
+<pre><code>&lt;!-- same as web version, plus this picker section --&gt;
+&lt;div id="pickerModal" style="display:none;"&gt;
+  &lt;h3&gt;Choose what to record&lt;/h3&gt;
+  &lt;div id="sourceGrid" style="display:flex; flex-wrap:wrap; gap:10px;"&gt;&lt;/div&gt;
+&lt;/div&gt;
+</code></pre>
+
+<h3>6.4 Updated <code>recorder.js</code> (Electron version — only the "start" logic changes)</h3>
+<pre><code>startBtn.onclick = async () => {
+  const sources = await window.electronAPI.getSources();
+  const grid = document.getElementById('sourceGrid');
+  grid.innerHTML = '';
+
+  sources.forEach(source => {
+    const img = document.createElement('img');
+    img.src = source.thumbnail;
+    img.title = source.name;
+    img.style.cursor = 'pointer';
+    img.style.border = '2px solid #444';
+    img.onclick = () => startRecordingFromSource(source.id);
+    grid.appendChild(img);
+  });
+
+  document.getElementById('pickerModal').style.display = 'block';
+};
+
+async function startRecordingFromSource(sourceId) {
+  document.getElementById('pickerModal').style.display = 'none';
+  recordedChunks = [];
+
+  // Special Electron-only constraint format to target a specific window/screen
+  screenStream = await navigator.mediaDevices.getUserMedia({
+    audio: false,
+    video: {
+      mandatory: {
+        chromeMediaSource: 'desktop',
+        chromeMediaSourceId: sourceId
+      }
+    }
+  });
+
+  screenPreview.srcObject = screenStream;
+
+  // ---- everything below this line is IDENTICAL to the web version ----
+  mediaRecorder = new MediaRecorder(screenStream, { mimeType: 'video/webm; codecs=vp9' });
+  mediaRecorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+  mediaRecorder.onstop = () => { saveBtn.disabled = false; };
+  mediaRecorder.start();
+
+  startBtn.disabled = true;
+  stopBtn.disabled = false;
+}
+</code></pre>
+
+<div class="card2">
+<b>Key idea to remember:</b> On the <u>web</u>, the browser shows the picker automatically via <code>getDisplayMedia()</code>. On <u>Electron desktop</u>, you fetch the list yourself via <code>desktopCapturer</code> (Main process) and build your own picker UI, then feed the chosen source id into <code>getUserMedia()</code> with a special <code>chromeMediaSourceId</code> constraint. <b>Stop / Save / MediaRecorder logic does not change at all.</b>
+</div>
+
+<h2 id="part7">7. Differences: Web vs Electron Version</h2>
+<table>
+<tr><th>Feature</th><th>Web App</th><th>Electron Desktop App</th></tr>
+<tr><td>Screen/window selection UI</td><td>Automatic native browser popup</td><td>You build your own thumbnail-grid picker</td></tr>
+<tr><td>API to get the stream</td><td><code>getDisplayMedia()</code></td><td><code>getUserMedia()</code> + <code>chromeMediaSourceId</code></td></tr>
+<tr><td>Listing available sources</td><td>Not needed (OS/browser handles it)</td><td><code>desktopCapturer.getSources()</code> in Main process</td></tr>
+<tr><td>Can record individual app windows directly</td><td>Yes (depends on OS/browser support)</td><td>Yes, more reliably across OS</td></tr>
+<tr><td>File saving</td><td>Browser download (goes to Downloads folder)</td><td>Can use Node's <code>fs</code> module to save anywhere directly</td></tr>
+<tr><td>Needs internet/server</td><td>No (fully client-side)</td><td>No</td></tr>
+<tr><td>Packaging</td><td>Just host static files</td><td>Bundled into .exe/.dmg/.AppImage via electron-builder</td></tr>
+<tr><td>UI code (HTML/CSS)</td><td>Same</td><td>Same (~90% reused)</td></tr>
+</table>
+
+<h3>7.1 Bonus: Saving directly to disk in Electron (nicer than browser download)</h3>
+<pre><code>// In renderer, after recorder.onstop:
+mediaRecorder.onstop = async () => {
+  const blob = new Blob(recordedChunks, { type: 'video/webm' });
+  const buffer = Buffer.from(await blob.arrayBuffer());
+  window.electronAPI.saveRecording(buffer); // sent to main process via preload
+};
+
+// preload.js — add:
+saveRecording: (buffer) => ipcRenderer.invoke('save-recording', buffer)
+
+// main.js — add:
+const fs = require('fs');
+const { dialog } = require('electron');
+
+ipcMain.handle('save-recording', async (event, buffer) => {
+  const { filePath } = await dialog.showSaveDialog({
+    defaultPath: `recording-${Date.now()}.webm`,
+    filters: [{ name: 'Videos', extensions: ['webm'] }]
+  });
+  if (filePath) fs.writeFileSync(filePath, buffer);
+});
+</code></pre>
+<p class="muted">This gives a proper native "Save As" dialog instead of always dumping into the Downloads folder — a nice touch that makes the desktop app feel more "native".</p>
+
+<h2 id="part8">8. Full Tech Stack Recommendation</h2>
+
+<h3>8.1 Minimum stack (fastest to build, good for MVP)</h3>
+<table>
+<tr><th>Layer</th><th>Choice</th><th>Why</th></tr>
+<tr><td>Frontend</td><td>Plain HTML + CSS + Vanilla JS</td><td>No build step, you already saw it works in ~60 lines</td></tr>
+<tr><td>Recording</td><td>MediaRecorder + getDisplayMedia/getUserMedia</td><td>Built into every modern browser, zero dependencies</td></tr>
+<tr><td>Desktop wrapper</td><td>Electron</td><td>Reuses the same web code almost unchanged</td></tr>
+<tr><td>Packaging</td><td>electron-builder</td><td>Produces .exe (Windows), .dmg (Mac), .AppImage/.deb (Linux)</td></tr>
+</table>
+
+<h3>8.2 More "production-grade" stack (recommended if this becomes a real product)</h3>
+<table>
+<tr><th>Layer</th><th>Choice</th><th>Notes</th></tr>
+<tr><td>UI Framework</td><td>React (with Vite) or Svelte</td><td>Easier to manage state — start/stop/recording-time/preview etc. React works identically in Electron's renderer.</td></tr>
+<tr><td>Styling</td><td>Tailwind CSS</td><td>Fast to build a clean modern UI, works in both web and Electron.</td></tr>
+<tr><td>State management</td><td>Zustand or React Context</td><td>Track recording state (idle/recording/paused/saved).</td></tr>
+<tr><td>Recording engine</td><td>MediaRecorder API (native)</td><td>Still the core — no need for a heavy library for basic recording.</td></tr>
+<tr><td>Video encoding/trimming (optional, advanced)</td><td>ffmpeg.wasm (browser) or native ffmpeg via child_process (Electron)</td><td>Useful if you want to convert webm → mp4, trim, or compress after recording.</td></tr>
+<tr><td>Desktop shell</td><td>Electron</td><td>Or "Tauri" (Rust-based) as a lighter, smaller-binary alternative if you don't need heavy Node APIs.</td></tr>
+<tr><td>Auto-update</td><td>electron-updater</td><td>Lets your desktop app auto-update itself.</td></tr>
+<tr><td>Packaging/Installers</td><td>electron-builder</td><td>Generates signed installers per OS.</td></tr>
+<tr><td>Storage of past recordings (optional)</td><td>IndexedDB (web) / local filesystem (Electron)</td><td>If you want a "history / library" of recordings inside the app.</td></tr>
+<tr><td>Backend (only if you need cloud save/sharing)</td><td>Node.js + Express, or Firebase</td><td>Only needed if recordings should be uploaded/shared, not required for local-only recording.</td></tr>
+</table>
+
+<h3>8.3 Alternative to Electron: Tauri</h3>
+<div class="card2">
+<b>Worth knowing:</b> <code>Tauri</code> is a newer alternative to Electron. It uses the OS's native web-renderer instead of bundling a full Chromium, so apps are much smaller (~10MB vs ~150MB) and use less memory. The trade-off is it uses Rust for the backend/main-process logic instead of Node.js, so there's a small learning curve. For a first version, Electron is simpler because everything stays in JavaScript.
+</div>
+
+<h2 id="part9">9. Packaging & Distribution</h2>
+<div class="card">
+<pre><code>npm install --save-dev electron-builder</code></pre>
+<p>Add this to <code>package.json</code>:</p>
+<pre><code>"scripts": {
+  "start": "electron .",
+  "build": "electron-builder"
+},
+"build": {
+  "appId": "com.yourname.screenrecorder",
+  "win": { "target": "nsis" },
+  "mac": { "target": "dmg" },
+  "linux": { "target": "AppImage" }
+}
+</code></pre>
+<p>Then run <code>npm run build</code> — it produces a ready installer file per platform inside a <code>dist/</code> folder.</p>
+</div>
+
+<h2 id="part10">10. Common Problems & Fixes</h2>
+<table>
+<tr><th>Problem</th><th>Fix</th></tr>
+<tr><td>Black screen when recording certain windows (Windows OS)</td><td>Some apps use hardware-accelerated rendering that blocks capture — this is an OS limitation, not a bug in your code.</td></tr>
+<tr><td>No audio in recording</td><td>System audio capture support varies per OS/browser; on Electron, capturing system audio usually needs an extra native module or platform-specific workaround — mic-only audio is the reliable option.</td></tr>
+<tr><td><code>getDisplayMedia is not a function</code> in Electron renderer</td><td>Electron's renderer does support it, but you must NOT set <code>nodeIntegration:true</code> carelessly — and for Electron you'll typically use the <code>desktopCapturer</code> approach instead anyway.</td></tr>
+<tr><td>File saved as .webm but user wants .mp4</td><td>webm is native to MediaRecorder; converting to mp4 needs ffmpeg (either ffmpeg.wasm in browser, or a bundled ffmpeg binary in Electron).</td></tr>
+<tr><td>App keeps showing "sharing" indicator after stop</td><td>Make sure you call <code>track.stop()</code> on every track in the stream, not just <code>mediaRecorder.stop()</code>.</td></tr>
+<tr><td>Permissions denied for screen/mic</td><td>Web: must be served over HTTPS (or localhost) — it won't work on plain HTTP. Electron: ensure correct entitlements are set, especially on macOS (Screen Recording permission in System Settings).</td></tr>
+</table>
+
+<h2 id="part11">11. Suggested Project Structure</h2>
+<pre><code>screen-recorder/
+├── package.json
+├── main.js              # Electron main process (desktop only)
+├── preload.js           # Electron secure bridge (desktop only)
+├── index.html           # Shared UI — used by both web & Electron
+├── style.css            # Shared styling
+├── recorder.js          # Shared recording logic (small platform check inside)
+├── assets/
+│   └── icons/
+└── dist/                 # electron-builder output (installers)
+</code></pre>
+
+<div class="card2 good">
+<b>Tip for code-sharing:</b> Put a small check at the top of <code>recorder.js</code> like:
+<pre><code>const isElectron = !!(window.electronAPI);</code></pre>
+and branch the "start" function based on that — this lets one single JS file serve both the pure web version and the Electron version.
+</div>
+
+<hr>
+<footer>
+Notes prepared for building a Screen Recorder — Web App + Electron Desktop App.<br>
+Core APIs used: getDisplayMedia, getUserMedia, MediaRecorder, desktopCapturer (Electron), electron-builder.
+</footer>
+
+</div>
+</body>
+</html>

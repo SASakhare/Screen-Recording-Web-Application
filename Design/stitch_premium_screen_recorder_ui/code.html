@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>StudioRecorder | Pro Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Geist:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .filled-icon {
+            font-variation-settings: 'FILL' 1;
+        }
+        .glass-panel {
+            background: rgba(17, 19, 25, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(149, 142, 160, 0.15);
+        }
+        .glow-violet {
+            box-shadow: 0 0 30px 4px rgba(208, 188, 255, 0.12);
+        }
+        .recording-pulse {
+            animation: pulse-red 2s infinite;
+        }
+        @keyframes pulse-red {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 180, 171, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(255, 180, 171, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255, 180, 171, 0); }
+        }
+        @keyframes border-pulse {
+            0%, 100% { border-color: rgba(208, 188, 255, 0.4); }
+            50% { border-color: rgba(208, 188, 255, 0.8); }
+        }
+        .animate-border {
+            animation: border-pulse 2s infinite ease-in-out;
+        }
+        .grid-bg {
+            background-image: radial-gradient(rgba(149, 142, 160, 0.05) 1px, transparent 0);
+            background-size: 32px 32px;
+        }
+        body {
+            background-color: #0F1117;
+            overflow: hidden;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+        }
+        .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        /* Simple Tooltip Helper */
+        .tooltip {
+            position: relative;
+        }
+        .tooltip:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 100;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary": "#3c0091",
+                        "on-background": "#e2e2eb",
+                        "surface": "#111319",
+                        "outline": "#958ea0",
+                        "on-tertiary-fixed-variant": "#673d00",
+                        "surface-dim": "#111319",
+                        "surface-container-lowest": "#0c0e14",
+                        "on-tertiary-container": "#3f2300",
+                        "inverse-on-surface": "#2e3037",
+                        "on-secondary-fixed": "#36003e",
+                        "primary-fixed-dim": "#d0bcff",
+                        "tertiary-fixed": "#ffdcbb",
+                        "tertiary-fixed-dim": "#ffb869",
+                        "surface-bright": "#373940",
+                        "tertiary": "#ffb869",
+                        "on-tertiary-fixed": "#2c1700",
+                        "secondary-fixed-dim": "#fbabff",
+                        "tertiary-container": "#ca801e",
+                        "on-secondary": "#580065",
+                        "primary": "#d0bcff",
+                        "inverse-primary": "#6d3bd7",
+                        "on-primary-container": "#340080",
+                        "surface-container-highest": "#33343b",
+                        "background": "#111319",
+                        "secondary-container": "#ae05c6",
+                        "primary-container": "#a078ff",
+                        "on-primary-fixed-variant": "#5516be",
+                        "error": "#ffb4ab",
+                        "surface-container": "#1e1f26",
+                        "on-secondary-container": "#ffd8fd",
+                        "inverse-surface": "#e2e2eb",
+                        "surface-tint": "#d0bcff",
+                        "on-primary-fixed": "#23005c",
+                        "on-error": "#690005",
+                        "secondary-fixed": "#ffd6fd",
+                        "on-surface": "#e2e2eb",
+                        "primary-fixed": "#e9ddff",
+                        "on-surface-variant": "#cbc3d7",
+                        "on-secondary-fixed-variant": "#7c008e",
+                        "on-tertiary": "#482900",
+                        "surface-container-low": "#191b22",
+                        "secondary": "#fbabff",
+                        "error-container": "#93000a",
+                        "surface-container-high": "#282a30",
+                        "surface-variant": "#33343b",
+                        "outline-variant": "#494454",
+                        "on-error-container": "#ffdad6"
+                    },
+                    "spacing": {
+                        "xs": "4px", "md": "16px", "unit": "4px", "margin-mobile": "16px",
+                        "xl": "40px", "sm": "8px", "lg": "24px", "margin-desktop": "32px", "gutter": "20px"
+                    },
+                    "fontFamily": {
+                        "display-lg": ["Inter"], "headline-lg": ["Inter"], "mono-code": ["Geist"], "label-sm": ["Geist"], "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "mono-code": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "500"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "16px",
+                        "lg": "16px",
+                        "xl": "20px",
+                        "full": "9999px"
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="text-on-background grid-bg min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="bg-surface/60 backdrop-blur-xl flex justify-between items-center w-full px-lg h-16 border-b border-outline-variant/20 z-50">
+<div class="flex items-center gap-lg">
+<span class="font-headline-lg text-headline-lg font-bold text-on-surface">StudioRecorder</span>
+<div class="h-6 w-px bg-outline-variant/30"></div>
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-sm bg-surface-container-high px-md py-xs rounded-lg cursor-pointer hover:bg-surface-container-highest transition-colors border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary text-[20px]">screen_share</span>
+<span class="font-body-md text-body-md text-on-surface">Select Source</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">expand_more</span>
+</div>
+<div class="flex items-center gap-xs px-sm py-1 bg-primary/10 rounded-full border border-primary/20">
+<span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(208,188,255,0.6)]"></span>
+<span class="text-[10px] uppercase tracking-wider font-bold text-primary">Display 1</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-md">
+<button class="flex items-center gap-xs px-md py-xs h-9 rounded-full border border-outline-variant/20 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[20px]">tune</span>
+<span class="font-label-sm text-label-sm">Audio Settings</span>
+</button>
+<button class="w-9 h-9 flex items-center justify-center rounded-full text-on-surface-variant hover:text-primary transition-colors hover:bg-primary/10 active:opacity-80">
+<span class="material-symbols-outlined text-[22px]" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<main class="flex-1 flex flex-col p-lg gap-lg relative overflow-hidden">
+<!-- Center Preview Panel -->
+<div class="flex-1 flex items-center justify-center relative">
+<div class="relative w-full max-w-5xl aspect-video bg-surface-container-lowest rounded-xl glow-violet border border-outline-variant/30 overflow-hidden shadow-2xl group">
+<!-- Preview Content Placeholder -->
+<div class="absolute inset-0 bg-cover bg-center" data-alt="A high-resolution desktop screen capture showing a professional video editing timeline with vibrant audio waveforms and sleek UI panels." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuArJea506pFpftlHDPTxAofCJKQg5KYgdAy6dWALIBbq9ly7jeIMW4X-srVTZNqVJ1f0aieXnBaZONq_dm9moH5aQk2NWF384ZkmsSRlKqBra-uLKjDeTkK5mWfAh-uC3acd71ZWjahUUkoJSIoVI4lVSnuHDLmAqv_4_G2dzmHtHwd6_0lvo7HBr6gqIBtpINuMHuZmWsvhUY8P_pXPTDQQfjTQrNaQX1NIzu-6oIktW24IvCm3QEh2uhE82XjUk4DpW60MWJK3xoW')">
+</div>
+<!-- Overlay Elements -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/40 to-transparent pointer-events-none"></div>
+<!-- Webcam Bubble -->
+<div class="absolute bottom-6 right-6 w-32 h-32 rounded-full border-2 border-primary/60 glow-violet overflow-hidden shadow-lg animate-border group-hover:scale-105 transition-transform duration-300">
+<img class="w-full h-full object-cover" data-alt="A professional headshot of a creative professional." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuvw8NDS2icZLC6qxpZAYuJGju8e8n94JbsB91tAHxD1sImoNpbLb7I-_zPPCOyxMLUIM15UFWY8cBilD9GxHjIaC_PMo92za-A3c6XO1Kl_0DlFrB6RyCn3JRVKS5X_3CgFa-hLPCTBk85IfeJ0hCcobIyq7jnV2QdoTzCPppGEwxttlMRsGlPQBGatZnUAYVnS8inEwakV-bCouDcZn5G4MOHwld4yxRAxmC4shZnqpdnISlHWx_-DkCaP-PnAXmmQlTfifbURFD"/>
+<!-- Drag handle indicator -->
+<div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 pointer-events-none">
+<span class="material-symbols-outlined text-white text-lg">open_with</span>
+</div>
+</div>
+<!-- Preview UI elements (Corner labels) -->
+<div class="absolute top-4 left-4 px-3 py-1 bg-surface-container-low/60 backdrop-blur-md rounded-full border border-white/5 flex items-center gap-xs">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-sm text-[10px] uppercase tracking-widest text-on-surface font-semibold">Main Display 1 • 4K</span>
+</div>
+</div>
+</div>
+<!-- Control Dock Row -->
+<div class="flex justify-center py-xl">
+<div class="glass-panel rounded-full px-lg py-md border border-outline-variant/30 shadow-2xl shadow-primary/10 flex items-center justify-center gap-lg z-50">
+<!-- Timer and REC Dot -->
+<div class="flex items-center gap-md pr-lg border-r border-outline-variant/20">
+<div class="w-3 h-3 rounded-full bg-error recording-pulse"></div>
+<span class="font-mono-code text-lg text-on-surface font-bold tracking-widest min-w-[100px]">00:00:00</span>
+</div>
+<div class="flex items-center gap-md">
+<!-- Start/Record -->
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-on-primary shadow-lg shadow-primary/30 hover:scale-110 transition-transform active:scale-95 duration-100" data-tooltip="Start Recording">
+<span class="material-symbols-outlined filled-icon" data-icon="fiber_manual_record">fiber_manual_record</span>
+</button>
+<!-- Pause -->
+<button class="p-md text-on-surface hover:text-primary hover:bg-surface-container-high transition-all rounded-full active:scale-95 duration-100 tooltip" data-tooltip="Pause">
+<span class="material-symbols-outlined" data-icon="pause">pause</span>
+</button>
+<!-- Stop -->
+<button class="w-10 h-10 flex items-center justify-center rounded-lg bg-error-container/40 text-error border border-error/20 hover:scale-110 transition-transform active:scale-95 duration-100 tooltip" data-tooltip="Stop &amp; Save">
+<span class="material-symbols-outlined filled-icon" data-icon="stop">stop</span>
+</button>
+<!-- Save -->
+<button class="p-md text-primary bg-primary/10 rounded-full hover:scale-110 transition-transform active:scale-95 duration-100 tooltip" data-tooltip="Cloud Upload">
+<span class="material-symbols-outlined filled-icon" data-icon="cloud_upload">cloud_upload</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Recent Recordings Strip -->
+<section class="mt-auto px-lg pb-md">
+<div class="flex items-center justify-between mb-md">
+<h3 class="font-label-sm text-label-sm uppercase tracking-widest text-outline font-semibold">Recent Recordings</h3>
+<button class="flex items-center gap-1 font-label-sm text-label-sm text-primary hover:text-secondary transition-colors font-semibold group">
+                View All Library 
+                <span class="material-symbols-outlined text-[16px] group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</button>
+</div>
+<div class="flex gap-lg overflow-x-auto pb-xs scrollbar-hide">
+<!-- Rec 1 -->
+<div class="flex-none w-72 group cursor-pointer">
+<div class="relative aspect-video rounded-lg overflow-hidden border border-outline-variant/20 mb-sm transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl group-hover:shadow-primary/20 group-hover:border-primary/40">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDanMs982PCcrXKCxFHOVsB3dzeltwlggAkr9PMmo3bvr4u6H5pmeNo6HcZbsR_1ptg9tuOWsrLUWcv8EB4n20vgVO5Ckjsb5JUP1qrS_66cKuWLc9ijmESUkqtBB86s5oJJeX4jB_rZYP6Ty1zNKzFg5nm1FvjMLlzqHOxSODvm7xc4C3ZdpQtoFzaFPnPW7zLQbXKGWXGGUVjkUqYhhejZiKVyhBHbfCyXg6A3tqQLEuib_fVzduoIGYxpxSsaAUEi6_he8n_TMAT')"></div>
+<div class="absolute top-2 right-2 p-1 bg-black/40 backdrop-blur-md rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-[18px]">more_vert</span>
+</div>
+<div class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] font-mono-code text-white border border-white/10">04:12</div>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl filled-icon">play_circle</span>
+</div>
+</div>
+<p class="font-body-md text-on-surface truncate text-sm font-medium">Product Demo v2.mp4</p>
+<p class="font-label-sm text-on-surface-variant text-[11px] mt-0.5">Today, 10:45 AM • 124MB</p>
+</div>
+<!-- Rec 2 -->
+<div class="flex-none w-72 group cursor-pointer">
+<div class="relative aspect-video rounded-lg overflow-hidden border border-outline-variant/20 mb-sm transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl group-hover:shadow-primary/20 group-hover:border-primary/40">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBun87lE8kVhGkf8wkZ-erv37Z2Pj2m9bt1iSile8n47sC11pOguZ540HQeiINLEN_B5WALQ6wzPkskf_hF-D8Ufi2R4xtlhHM1ksVeMsVFPpgnSYavuHpD3oMf29RsXuxDn5SY_mR5eNpzKK9jn2Rk8yI05rgH1iNrmz7z3W-I_i8iDEaCvqI_wHlas1TEB0z6aWUsQcv-mh_WkbCv9fkaBkc0Egu-Ec3Ors24NXH8rhnNfX7iNXuyWTDsvTCDlZJ-SlI90hd-52aN')"></div>
+<div class="absolute top-2 right-2 p-1 bg-black/40 backdrop-blur-md rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-[18px]">more_vert</span>
+</div>
+<div class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] font-mono-code text-white border border-white/10">12:45</div>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl filled-icon">play_circle</span>
+</div>
+</div>
+<p class="font-body-md text-on-surface truncate text-sm font-medium">Code Walkthrough - React.mp4</p>
+<p class="font-label-sm text-on-surface-variant text-[11px] mt-0.5">Yesterday • 840MB</p>
+</div>
+<!-- Rec 3 -->
+<div class="flex-none w-72 group cursor-pointer">
+<div class="relative aspect-video rounded-lg overflow-hidden border border-outline-variant/20 mb-sm transition-all duration-300 group-hover:-translate-y-2 group-hover:shadow-2xl group-hover:shadow-primary/20 group-hover:border-primary/40">
+<div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDrCVl07IC8jPugs2C6raKIIYF8230r7q5-AzpwGS2IRdM-ZXaOzjXcluK-VEvyJ5ZRiYDJX1tYkLXfVLmVFpSH1FL9OIP0fKPNVZR_xw6TpPlgbgFtOOEC8-H5z4JgP29jbvmI6ipQt97p-FvKafaeAq0ZwCAjHzPhZcfRlRWVrHZTu_VfHhY5cLaut8otwiAU-vB-I19ZWQGWI4oNJLcuZ40U3XoJ16RoVsuFOjtbs3gibMgUezcvAF8Ph_II0FMbfiS8bTltAS5h')"></div>
+<div class="absolute top-2 right-2 p-1 bg-black/40 backdrop-blur-md rounded-md opacity-0 group-hover:opacity-100 transition-opacity">
+<span class="material-symbols-outlined text-white text-[18px]">more_vert</span>
+</div>
+<div class="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/70 backdrop-blur-sm rounded text-[10px] font-mono-code text-white border border-white/10">01:05</div>
+<div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl filled-icon">play_circle</span>
+</div>
+</div>
+<p class="font-body-md text-on-surface truncate text-sm font-medium">Design Sync.mp4</p>
+<p class="font-label-sm text-on-surface-variant text-[11px] mt-0.5">2 days ago • 45MB</p>
+</div>
+</div>
+</section>
+</main>
+<!-- SideNavBar - Contextual Project Gallery -->
+<aside class="fixed left-0 top-16 h-[calc(100vh-64px)] w-64 bg-surface-container-low border-r border-outline-variant/10 flex flex-col py-lg px-md gap-md z-40 transform -translate-x-full transition-transform duration-300 hover:translate-x-0 group">
+<!-- Peak tab to indicate sidebar is there -->
+<div class="absolute top-1/2 -right-6 -translate-y-1/2 w-6 h-12 bg-surface-container-low border border-l-0 border-outline-variant/10 rounded-r-xl flex items-center justify-center cursor-pointer group-hover:hidden">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">chevron_right</span>
+</div>
+<div class="mb-lg">
+<h2 class="font-headline-lg text-headline-lg text-primary">Project Gallery</h2>
+<p class="font-body-md text-body-md text-on-surface-variant opacity-60">Manage your captures</p>
+</div>
+<nav class="flex flex-col gap-xs flex-1">
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-primary border-r-2 border-primary bg-primary/10 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px] filled-icon">video_library</span>
+<span class="font-body-md text-body-md font-medium">Library</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="font-body-md text-body-md">Recordings</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">edit_square</span>
+<span class="font-body-md text-body-md">Drafts</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+<span class="font-body-md text-body-md">Archive</span>
+</a>
+</nav>
+<button class="mt-auto w-full bg-gradient-to-br from-primary to-secondary text-on-primary py-md rounded-xl font-bold hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-primary/20">
+            New Capture
+        </button>
+</aside>
+<script>
+        // Micro-interactions
+        const timerElement = document.querySelector('.font-mono-code');
+        let seconds = 0;
+        let recording = false;
+        let interval;
+
+        function updateTimer() {
+            seconds++;
+            const hrs = Math.floor(seconds / 3600).toString().padStart(2, '0');
+            const mins = Math.floor((seconds % 3600) / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            timerElement.textContent = `${hrs}:${mins}:${secs}`;
+        }
+
+        const startBtn = document.querySelector('button .filled-icon[data-icon="fiber_manual_record"]').parentElement;
+        const stopBtn = document.querySelector('button .filled-icon[data-icon="stop"]').parentElement;
+
+        startBtn.addEventListener('click', () => {
+            if (!recording) {
+                recording = true;
+                interval = setInterval(updateTimer, 1000);
+                startBtn.classList.add('animate-pulse');
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            recording = false;
+            clearInterval(interval);
+            seconds = 0;
+            timerElement.textContent = "00:00:00";
+            startBtn.classList.remove('animate-pulse');
+        });
+
+        // Background Atmosphere - subtle moving light
+        const cursorGlow = document.createElement('div');
+        cursorGlow.style.position = 'fixed';
+        cursorGlow.style.width = '800px';
+        cursorGlow.style.height = '800px';
+        cursorGlow.style.borderRadius = '50%';
+        cursorGlow.style.background = 'radial-gradient(circle, rgba(208,188,255,0.03) 0%, transparent 70%)';
+        cursorGlow.style.pointerEvents = 'none';
+        cursorGlow.style.zIndex = '0';
+        document.body.appendChild(cursorGlow);
+
+        document.addEventListener('mousemove', (e) => {
+            cursorGlow.style.left = `${e.clientX - 400}px`;
+            cursorGlow.style.top = `${e.clientY - 400}px`;
+        });
+    </script>
+</body></html>
