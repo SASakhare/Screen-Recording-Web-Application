@@ -1,5 +1,5 @@
 // VideoComponent.tsx
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRecorderStore } from "@/store/recoderStore";
 import {
     startRecording,
@@ -7,6 +7,8 @@ import {
     stopRecording,
     getScreenStream,
 } from "@/engine/recorderEngine";
+import { LuMonitorPlay } from "react-icons/lu";
+import { FaVolumeMute } from "react-icons/fa";
 
 const VideoComponent = () => {
     const status = useRecorderStore((s) => s.status);
@@ -15,6 +17,8 @@ const VideoComponent = () => {
     const error = useRecorderStore((s) => s.error);
 
     const liveVideoRef = useRef<HTMLVideoElement>(null);
+    const previewVideoRef = useRef<HTMLVideoElement>(null);
+    const [autoplayBlocked, setAutoplayBlocked] = useState(false);
 
     // Attach the live screen stream to the preview <video> once recording starts
     useEffect(() => {
@@ -22,6 +26,16 @@ const VideoComponent = () => {
             liveVideoRef.current.srcObject = getScreenStream();
         }
     }, [status]);
+
+    // Try to autoplay the finished recording, unmuted, as soon as it's ready
+    useEffect(() => {
+        if (status === "stopped" && videoUrl && previewVideoRef.current) {
+            setAutoplayBlocked(false);
+            previewVideoRef.current
+                .play()
+                .catch(() => setAutoplayBlocked(true)); // browser blocked unmuted autoplay
+        }
+    }, [status, videoUrl]);
 
     const isRecording = status === "recording";
     const isPaused = status === "paused";
@@ -38,13 +52,49 @@ const VideoComponent = () => {
         a.remove();
     };
 
+    const handleUnmutePlay = () => {
+        if (previewVideoRef.current) {
+            previewVideoRef.current.muted = false;
+            previewVideoRef.current.play();
+            setAutoplayBlocked(false);
+        }
+    };
+
     return (
         <div className="grid place-items-center mt-15">
-            <div className="text-white flex sm:w-full md:w-170 rounded-2xl h-110 items-center justify-center bg-amber-400 overflow-hidden">
+            <div className="relative flex sm:w-full md:w-170 rounded-2xl h-110 items-center justify-center bg-[#111114] border border-white/10 overflow-hidden">
                 {isStopped && videoUrl ? (
-                    <video src={videoUrl} controls className="w-full h-full object-contain bg-black" />
+                    <>
+                        <video
+                            key={videoUrl}
+                            ref={previewVideoRef}
+                            src={videoUrl}
+                            controls
+                            autoPlay
+                            className="w-full h-full object-contain bg-black"
+                        />
+                        {autoplayBlocked && (
+                            <button
+                                onClick={handleUnmutePlay}
+                                className="
+                    absolute inset-0 flex flex-col items-center justify-center gap-3
+                    bg-black/60 text-white backdrop-blur-sm
+                    "
+                            >
+                                <FaVolumeMute className="text-4xl text-purple-300" />
+                                <span className="font-medium">Tap to play with sound</span>
+                            </button>
+                        )}
+                    </>
                 ) : status === "idle" ? (
-                    <span>VideoComponent</span>
+                    <div className="flex flex-col items-center gap-3 text-gray-500">
+                        <LuMonitorPlay className="text-5xl text-purple-400/70" />
+                        <p className="text-gray-300 font-medium">Nothing recorded yet</p>
+                        <p className="text-sm text-gray-500">
+                            Click <span className="text-purple-300 font-semibold">Start</span> to choose a
+                            screen, window, or tab
+                        </p>
+                    </div>
                 ) : (
                     <video ref={liveVideoRef} autoPlay muted className="w-full h-full object-contain bg-black" />
                 )}
@@ -55,7 +105,7 @@ const VideoComponent = () => {
             <div className="mt-4">
                 <div
                     className="
-                flex items-center gap-4 bg-[#0d0d12] border border-white/10
+            flex items-center gap-4 bg-[#0d0d12] border border-white/10
                 px-6 py-3 rounded-full shadow-2xl
             "
                 >
@@ -78,7 +128,7 @@ const VideoComponent = () => {
                 group relative w-12 h-12 rounded-full bg-purple-400 text-black
                 flex items-center justify-center shadow-lg shadow-purple-500/30
                 hover:scale-110 transition-all disabled:opacity-30 disabled:hover:scale-100
-            "
+                "
                     >
                         <div className="w-4 h-4 rounded-full border-2 border-black" />
                         <span className="absolute top-14 hidden group-hover:block bg-black text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10">
@@ -92,30 +142,19 @@ const VideoComponent = () => {
                         onClick={pauseRecording}
                         disabled={!canPauseOrStop}
                         className="
-                        group relative w-12 h-12 rounded-full bg-[#1b1b22] text-white
-                        flex items-center justify-center border border-white/10
-                        hover:bg-[#292932] transition-all disabled:opacity-30
-                    "
+                group relative w-12 h-12 rounded-full bg-[#1b1b22] text-white
+                flex items-center justify-center border border-white/10
+                hover:bg-[#292932] transition-all disabled:opacity-30
+                "
                     >
                         {isPaused ? (
-                            // Play triangle (Resume)
-                            <div
-                                className="
-                                        w-0 h-0
-                                        border-t-8 border-t-transparent
-                                        border-b-8 border-b-transparent
-                                        border-l-14 border-l-white
-                                        ml-1
-                                    "
-                            />
+                            <div className="w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-l-14 border-l-white ml-1" />
                         ) : (
-                            // Pause bars
                             <div className="flex gap-1">
                                 <div className="w-1 h-4 bg-white rounded" />
                                 <div className="w-1 h-4 bg-white rounded" />
                             </div>
                         )}
-
                         <span className="absolute top-14 hidden group-hover:block bg-black text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10">
                             {isPaused ? "Resume Recording" : "Pause Recording"}
                         </span>
@@ -127,10 +166,10 @@ const VideoComponent = () => {
                         onClick={stopRecording}
                         disabled={!canPauseOrStop}
                         className="
-                            group relative w-12 h-12 rounded-full bg-[#4a1015] text-white
-                            flex items-center justify-center border border-red-500/30
-                            hover:bg-[#65151d] transition-all disabled:opacity-30
-                            "
+                group relative w-12 h-12 rounded-full bg-[#4a1015] text-white
+                flex items-center justify-center border border-red-500/30
+                hover:bg-[#65151d] transition-all disabled:opacity-30
+                "
                     >
                         <div className="w-4 h-4 bg-red-400 rounded-sm" />
                         <span className="absolute top-14 hidden group-hover:block bg-black text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10">
@@ -144,10 +183,10 @@ const VideoComponent = () => {
                         onClick={handleSave}
                         disabled={!isStopped}
                         className="
-                    group relative w-12 h-12 rounded-full bg-[#1b1b22] text-white
-                    flex items-center justify-center border border-white/10
-                    hover:bg-[#292932] transition-all disabled:opacity-30
-                    "
+                group relative w-12 h-12 rounded-full bg-[#1b1b22] text-white
+                flex items-center justify-center border border-white/10
+                hover:bg-[#292932] transition-all disabled:opacity-30
+                "
                     >
                         <span className="text-xl">☁</span>
                         <span className="absolute top-14 hidden group-hover:block bg-black text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10">
