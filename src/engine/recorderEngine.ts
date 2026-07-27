@@ -1,5 +1,6 @@
 // engine/recorderEngine.ts
 import { useRecorderStore } from "@/store/recoderStore";
+import { useSettingsStore } from "@/store/settingStore";
 
 let screenStream: MediaStream | null = null;
 let camStream: MediaStream | null = null;
@@ -10,7 +11,6 @@ let timeInterval: ReturnType<typeof setInterval> | null = null;
 let audioContext: AudioContext | null = null;
 
 const store = () => useRecorderStore.getState();
-
 export async function startRecording(): Promise<void> {
     const { setStatus, setError, setSource, audioMode } = store();
 
@@ -20,9 +20,14 @@ export async function startRecording(): Promise<void> {
         const wantsSystemAudio = audioMode === "system" || audioMode === "both";
         const wantsMic = audioMode === "microphone" || audioMode === "both";
 
+        const { fps60, showCursor } = useSettingsStore.getState();
+
         // Native picker — ask for system audio only if that mode needs it
         screenStream = await navigator.mediaDevices.getDisplayMedia({
-            video: { frameRate: 30 },
+            video: {
+                frameRate: fps60 ? 60 : 30,
+                cursor: showCursor ? "always" : "never", // non-standard, Chromium-only
+            } as MediaTrackConstraints,
             audio: wantsSystemAudio,
         });
 

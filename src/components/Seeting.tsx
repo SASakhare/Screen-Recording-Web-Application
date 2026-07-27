@@ -1,138 +1,96 @@
 import { IoSettingsSharp } from "react-icons/io5";
-
 import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectLabel,
-    SelectSeparator,
-    SelectTrigger,
-} from "@/components/ui/select";
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuGroup,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useSettingsStore } from "@/store/settingStore";
 
 const Settings = () => {
+    const {
+        showCursor,
+        highlightClicks,
+        fps60,
+        countdown,
+        toggleShowCursor,
+        toggleHighlightClicks,
+        toggleFps60,
+        toggleCountdown,
+    } = useSettingsStore();
+
     return (
-        <Select>
+        <DropdownMenu>
+            <DropdownMenuTrigger
+                render={
+                    <button
+                        className="
+                            w-12 h-12 rounded-full bg-[#24252b] border-none text-white
+                            flex items-center justify-center
+                            hover:bg-[#2d2d35] transition-colors outline-none
+                        "
+                    >
+                        <IoSettingsSharp className="text-xl" />
+                    </button>
+                }
+            />
 
-            <SelectTrigger
-                className="
-                    w-12
-                    h-12
-                    rounded-full
-                    bg-[#24252b]
-                    border-none
-                    text-white
-                    justify-center
-                    focus-visible:ring-0
-                    shadow-none
-                    hover:bg-[#2d2d35]
-                    transition-colors
-                "
+            <DropdownMenuContent
+                align="end"
+                className="w-72 bg-[#0d0d0f] border border-white/10 rounded-xl p-2 text-white"
             >
-                <IoSettingsSharp className="text-xl" />
-            </SelectTrigger>
+                <DropdownMenuGroup>
+                    <DropdownMenuLabel className="text-gray-400">Recording</DropdownMenuLabel>
 
-            <SelectContent
-                className="
-                    w-72
-                    bg-[#0d0d0f]
-                    border
-                    border-white/10
-                    rounded-xl
-                    p-2
-                    text-white
-                "
-            >
-
-                <SelectGroup>
-                    <SelectLabel className="text-gray-400">
-                        Appearance
-                    </SelectLabel>
-
-                    <SelectItem value="dark">
-                        🌙 Dark Theme
-                    </SelectItem>
-
-                    <SelectItem value="light">
-                        ☀️ Light Theme
-                    </SelectItem>
-
-                    <SelectItem value="system">
-                        💻 System Theme
-                    </SelectItem>
-                </SelectGroup>
-
-                <SelectSeparator />
-
-                <SelectGroup>
-                    <SelectLabel className="text-gray-400">
-                        Recording
-                    </SelectLabel>
-
-                    <SelectItem value="cursor">
+                    <DropdownMenuCheckboxItem
+                        checked={showCursor}
+                        onCheckedChange={toggleShowCursor}
+                        className="rounded-lg cursor-pointer focus:bg-[#24252b]"
+                    >
                         🖱️ Show Mouse Cursor
-                    </SelectItem>
+                    </DropdownMenuCheckboxItem>
 
-                    <SelectItem value="clicks">
-                        👆 Highlight Mouse Clicks
-                    </SelectItem>
+                    <DropdownMenuCheckboxItem
+                        checked={highlightClicks}
+                        onCheckedChange={toggleHighlightClicks}
+                        className="rounded-lg cursor-pointer focus:bg-[#24252b]"
+                    >
+                        👆 Highlight Mouse Clicks (desktop app only)
+                    </DropdownMenuCheckboxItem>
 
-                    <SelectItem value="fps">
+                    <DropdownMenuCheckboxItem
+                        checked={fps60}
+                        onCheckedChange={toggleFps60}
+                        className="rounded-lg cursor-pointer focus:bg-[#24252b]"
+                    >
                         🎞️ 60 FPS Recording
-                    </SelectItem>
+                    </DropdownMenuCheckboxItem>
 
-                    <SelectItem value="countdown">
-                        ⏱️ 3 Second Countdown
-                    </SelectItem>
-                </SelectGroup>
+                </DropdownMenuGroup>
 
-                <SelectSeparator />
+                <DropdownMenuSeparator />
 
-                <SelectGroup>
-                    <SelectLabel className="text-gray-400">
-                        Audio
-                    </SelectLabel>
-
-                    <SelectItem value="noise">
-                        🎙️ Noise Cancellation
-                    </SelectItem>
-
-                    <SelectItem value="echo">
-                        🔊 Echo Cancellation
-                    </SelectItem>
-
-                    <SelectItem value="volume">
-                        🔉 Auto Volume Control
-                    </SelectItem>
-                </SelectGroup>
-
-                <SelectSeparator />
-
-                <SelectGroup>
-                    <SelectLabel className="text-gray-400">
-                        General
-                    </SelectLabel>
-
-                    <SelectItem value="save-location">
-                        📂 Change Save Location
-                    </SelectItem>
-
-                    <SelectItem value="shortcuts">
-                        ⌨️ Keyboard Shortcuts
-                    </SelectItem>
-
-                    <SelectItem value="updates">
+                <DropdownMenuGroup>
+                    <DropdownMenuItem
+                        onClick={() => window.open("https://github.com/SASakhare/Screen-Recording-Web-Application", "_blank", "noopener,noreferrer")}
+                        className="rounded-lg cursor-pointer focus:bg-[#24252b]"
+                    >
                         🚀 Check for Updates
-                    </SelectItem>
+                    </DropdownMenuItem>
 
-                    <SelectItem value="about">
+                    <DropdownMenuItem
+                        onClick={() => window.open("https://github.com/SASakhare/Screen-Recording-Web-Application", "_blank", "noopener,noreferrer")}
+                        className="rounded-lg cursor-pointer focus:bg-[#24252b]"
+                    >
                         ℹ️ About Studio Recorder
-                    </SelectItem>
-                </SelectGroup>
-
-            </SelectContent>
-
-        </Select>
+                    </DropdownMenuItem>
+                </DropdownMenuGroup>
+            </DropdownMenuContent>
+        </DropdownMenu>
     );
 };
 
