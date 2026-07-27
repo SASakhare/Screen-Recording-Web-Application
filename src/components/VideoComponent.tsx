@@ -95,12 +95,27 @@ const VideoComponent = () => {
                         group relative w-12 h-12 rounded-full bg-[#1b1b22] text-white
                         flex items-center justify-center border border-white/10
                         hover:bg-[#292932] transition-all disabled:opacity-30
-                "
+                    "
                     >
-                        <div className="flex gap-1">
-                            <div className="w-1 h-4 bg-white rounded" />
-                            <div className="w-1 h-4 bg-white rounded" />
-                        </div>
+                        {isPaused ? (
+                            // Play triangle (Resume)
+                            <div
+                                className="
+                                        w-0 h-0
+                                        border-t-8 border-t-transparent
+                                        border-b-8 border-b-transparent
+                                        border-l-14 border-l-white
+                                        ml-1
+                                    "
+                            />
+                        ) : (
+                            // Pause bars
+                            <div className="flex gap-1">
+                                <div className="w-1 h-4 bg-white rounded" />
+                                <div className="w-1 h-4 bg-white rounded" />
+                            </div>
+                        )}
+
                         <span className="absolute top-14 hidden group-hover:block bg-black text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10">
                             {isPaused ? "Resume Recording" : "Pause Recording"}
                         </span>
@@ -112,10 +127,10 @@ const VideoComponent = () => {
                         onClick={stopRecording}
                         disabled={!canPauseOrStop}
                         className="
-                group relative w-12 h-12 rounded-full bg-[#4a1015] text-white
-                flex items-center justify-center border border-red-500/30
-                hover:bg-[#65151d] transition-all disabled:opacity-30
-                "
+                            group relative w-12 h-12 rounded-full bg-[#4a1015] text-white
+                            flex items-center justify-center border border-red-500/30
+                            hover:bg-[#65151d] transition-all disabled:opacity-30
+                            "
                     >
                         <div className="w-4 h-4 bg-red-400 rounded-sm" />
                         <span className="absolute top-14 hidden group-hover:block bg-black text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10">
@@ -129,10 +144,10 @@ const VideoComponent = () => {
                         onClick={handleSave}
                         disabled={!isStopped}
                         className="
-                group relative w-12 h-12 rounded-full bg-[#1b1b22] text-white
-                flex items-center justify-center border border-white/10
-                hover:bg-[#292932] transition-all disabled:opacity-30
-                "
+                    group relative w-12 h-12 rounded-full bg-[#1b1b22] text-white
+                    flex items-center justify-center border border-white/10
+                    hover:bg-[#292932] transition-all disabled:opacity-30
+                    "
                     >
                         <span className="text-xl">☁</span>
                         <span className="absolute top-14 hidden group-hover:block bg-black text-white text-xs px-3 py-1.5 rounded-lg whitespace-nowrap border border-white/10">
