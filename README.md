@@ -7,6 +7,12 @@
 Record your entire screen, a specific window, or a browser tab, with full control over audio, straight from the browser.
 
 <p>
+  <a href="https://screen-recording-web-application.vercel.app/">
+    <img src="https://img.shields.io/badge/🚀_Live_App-Try_it_now-8b5cf6?style=for-the-badge" alt="Live App" />
+  </a>
+</p>
+
+<p>
   <img src="https://img.shields.io/badge/status-active-brightgreen" alt="status" />
   <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="react" />
   <img src="https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white" alt="typescript" />
@@ -15,7 +21,7 @@ Record your entire screen, a specific window, or a browser tab, with full contro
   <img src="https://img.shields.io/badge/License-MIT-lightgrey" alt="license" />
 </p>
 
-`<em>`📸 Add a screenshot or GIF of the app here — this is the first thing visitors see, and it does more to earn a star than any paragraph below it.`</em>`
+<em>📸 Add a screenshot or GIF of the app here — this is the first thing visitors see, and it does more to earn a star than any paragraph below it.</em>
 
 </div>
 
@@ -23,6 +29,7 @@ Record your entire screen, a specific window, or a browser tab, with full contro
 
 ## Table of Contents
 
+- [Live Demo](#-live-demo)
 - [About](#-about)
 - [Features](#-features)
 - [Tech Stack](#-tech-stack)
@@ -32,12 +39,20 @@ Record your entire screen, a specific window, or a browser tab, with full contro
 - [Configuration](#-configuration)
 - [Security](#-security)
 - [How to Contribute](#-how-to-contribute)
-- [What&#39;s Next](#️-whats-next)
+- [What's Next](#️-whats-next)
 - [License](#-license)
 - [Acknowledgements](#-acknowledgements)
 - [Author](#-author)
 
 ---
+
+## 🌍 Live Demo
+
+**[screen-recording-web-application.vercel.app](https://screen-recording-web-application.vercel.app/)**
+
+No sign-up, no install — open it in Chrome or Edge and click **Start** to try it immediately.
+
+<br>
 
 ## 📖 About
 
@@ -45,35 +60,36 @@ Record your entire screen, a specific window, or a browser tab, with full contro
 
 The goal is a **Loom-style recording experience** — pick a screen, window, or tab, control audio precisely, and get a clean, reviewable clip in seconds — without shipping any of that footage to a server.
 
-An Electron-based desktop companion app is in progress, reusing this same codebase, to unlock capabilities the browser sandbox doesn't allow (see [What&#39;s Next](#️-whats-next)).
+An Electron-based desktop companion app is in progress, reusing this same codebase, to unlock capabilities the browser sandbox doesn't allow (see [What's Next](#️-whats-next)).
 
 <br>
 
 ## ✨ Features
 
-|                                         |                                                                                                        |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 🖥️**Flexible source selection** | Record the entire screen, a specific window, or a single browser tab using the browser's native picker |
-| ⏯️**Full playback controls**    | Start, Pause, Resume, and Stop — with a live, accurate recording timer                                |
-| 🔊**Configurable audio**          | Choose System Audio, Microphone, both mixed together, or fully muted                                   |
-| 💾**Instant local save**          | Recordings save as `.webm` with an autoplay preview immediately after stopping                       |
-| ⚙️**Recording preferences**     | Toggle 60 FPS capture, a 3-second countdown, and cursor visibility                                     |
-| 🎨**Polished dark UI**            | Glassmorphic, premium interface built with Tailwind CSS                                                |
-| ⚡**Zero backend**                | Everything runs client-side — no server, no database, no signup                                       |
+| | |
+|---|---|
+| 🖥️ **Flexible source selection** | Record the entire screen, a specific window, or a single browser tab using the browser's native picker |
+| ⏯️ **Full playback controls** | Start, Pause, Resume, and Stop — with a live, accurate recording timer |
+| 🔊 **Configurable audio** | Choose System Audio, Microphone, both mixed together, or fully muted |
+| 💾 **Instant local save** | Recordings save as `.webm` with an autoplay preview immediately after stopping |
+| ⚙️ **Recording preferences** | Toggle 60 FPS capture, a 3-second countdown, and cursor visibility |
+| 🎨 **Polished dark UI** | Glassmorphic, premium interface built with Tailwind CSS |
+| ⚡ **Zero backend** | Everything runs client-side — no server, no database, no signup |
 
 <br>
 
 ## 🧰 Tech Stack
 
-| Layer                      | Technology                                                                                |
-| -------------------------- | ----------------------------------------------------------------------------------------- |
-| **UI Framework**     | React 19 + TypeScript                                                                     |
-| **Build Tool**       | Vite                                                                                      |
-| **Styling**          | Tailwind CSS                                                                              |
-| **State Management** | Zustand                                                                                   |
-| **UI Primitives**    | Base UI (`Select`, `DropdownMenu`)                                                    |
-| **Icons**            | react-icons                                                                               |
-| **Recording Engine** | Native Web APIs —`getDisplayMedia`, `getUserMedia`, `MediaRecorder`, Web Audio API |
+| Layer | Technology |
+|---|---|
+| **UI Framework** | React 19 + TypeScript |
+| **Build Tool** | Vite |
+| **Styling** | Tailwind CSS |
+| **State Management** | Zustand |
+| **UI Primitives** | Base UI (`Select`, `DropdownMenu`) |
+| **Icons** | react-icons |
+| **Recording Engine** | Native Web APIs — `getDisplayMedia`, `getUserMedia`, `MediaRecorder`, Web Audio API |
+| **Hosting** | Vercel |
 
 > Built entirely on standard browser APIs — no third-party recording SDK, no paid service, no vendor lock-in.
 
@@ -132,9 +148,13 @@ src/
 
 ## 🚀 Getting Started
 
+Want to try it without setting anything up? **[Use the live app →](https://screen-recording-web-application.vercel.app/)**
+
+To run it locally instead:
+
 ### Prerequisites
 
-- Node.js 19 or higher
+- Node.js 18 or higher
 - npm
 
 ### Clone and install
@@ -171,12 +191,12 @@ npm run preview
 
 StudioRecorder is a fully static site — deploy `dist/` to any static host:
 
-| Host                       | Setup                                                                                        |
-| -------------------------- | -------------------------------------------------------------------------------------------- |
-| **Vercel**           | Run `vercel` in the project root — Vite is auto-detected                                  |
-| **Netlify**          | Build command:`npm run build` · Publish directory: `dist`                               |
-| **Cloudflare Pages** | Same configuration as Netlify                                                                |
-| **GitHub Pages**     | Build, then run `gh-pages -d dist` · Set `base` in `vite.config.ts` to your repo name |
+| Host | Setup |
+|---|---|
+| **Vercel** | Run `vercel` in the project root — Vite is auto-detected (this is how the [live app](https://screen-recording-web-application.vercel.app/) is hosted) |
+| **Netlify** | Build command: `npm run build` · Publish directory: `dist` |
+| **Cloudflare Pages** | Same configuration as Netlify |
+| **GitHub Pages** | Build, then run `gh-pages -d dist` · Set `base` in `vite.config.ts` to your repo name |
 
 > ⚠️ **HTTPS is required in production.** `getDisplayMedia` is blocked on plain HTTP outside of `localhost`. Every host above provides HTTPS by default.
 
@@ -210,10 +230,10 @@ Reference it in code via `import.meta.env.VITE_SOME_API_KEY`. Make sure `.env.lo
 
 These are constraints of the Screen Capture API itself, not bugs in this application:
 
-| Limitation                       | Explanation                                                                                                                                                                                         |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **System audio**           | Reliable only when sharing a**browser tab** with "Share audio" enabled. Support for entire-screen audio varies by OS, and individual windows never include system audio.                      |
-| **Cursor visibility**      | Partly governed by the OS/browser's own screen picker — JavaScript cannot fully guarantee this.                                                                                                    |
+| Limitation | Explanation |
+|---|---|
+| **System audio** | Reliable only when sharing a **browser tab** with "Share audio" enabled. Support for entire-screen audio varies by OS, and individual windows never include system audio. |
+| **Cursor visibility** | Partly governed by the OS/browser's own screen picker — JavaScript cannot fully guarantee this. |
 | **Highlight mouse clicks** | Not possible for arbitrary captured windows or screens from a web page, since browsers sandbox mouse-event visibility to the page itself. This becomes fully achievable in the planned desktop app. |
 
 <br>
@@ -256,6 +276,7 @@ Released under the [MIT License](LICENSE). You're free to use, modify, and distr
 - [Zustand](https://github.com/pmndrs/zustand) — minimal state management
 - [react-icons](https://react-icons.github.io/react-icons/) — icon library
 - [Tailwind CSS](https://tailwindcss.com/) — utility-first styling
+- [Vercel](https://vercel.com/) — zero-config hosting for the live demo
 - The Web Platform itself — `MediaRecorder`, `getDisplayMedia`, and the Web Audio API make this entire project possible without any paid recording infrastructure
 
 <br>
@@ -266,6 +287,7 @@ Released under the [MIT License](LICENSE). You're free to use, modify, and distr
 
 - GitHub: [@SASakhare](https://github.com/SASakhare)
 - Repository: [Screen-Recording-Web-Application](https://github.com/SASakhare/Screen-Recording-Web-Application)
+- Live App: [screen-recording-web-application.vercel.app](https://screen-recording-web-application.vercel.app/)
 
 Questions, ideas, or bug reports are welcome via [GitHub Issues](https://github.com/SASakhare/Screen-Recording-Web-Application/issues).
 
