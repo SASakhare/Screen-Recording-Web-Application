@@ -20,7 +20,7 @@ const TopBar = () => {
 
                         <span
                             className="
-                bg-gradient-to-r
+                bg-linear-to-r
                 from-purple-400
                 via-pink-400
                 to-blue-400
