@@ -1,60 +1,35 @@
-import { FaDisplay } from "react-icons/fa6";
-import {
-    Select,
-    SelectContent,
-    SelectGroup,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
+
+import SelectDisplay from "./SelectDisplay";
+import AudioSettings from "./AudioSetting";
+import Settings from "./Seeting";
+
 
 const TopBar = () => {
     return (
-        <div className="w-screen  bg-black opacity-95 text-white">
-            <div className="flex gap-2">
-                <div>
+        <div className="w-screen h-16 bg-black/95 text-white px-6 flex items-center justify-between">
+
+            {/*  //* Left Side  */}
+            <div className="flex items-center gap-6">
+
+                <div className="text-lg font-semibold">
                     StudioRecorder
                 </div>
-                <div className="">
-                    <div className="mt-1">
-                        <FaDisplay />
-                    </div>
-                    <div>
 
-                    </div>
-                </div>
-            </div>
-
-            <div className="">
+                <SelectDisplay />
 
             </div>
+
+
+            {/*  //* Right Side  */}
+            <div className="flex items-center gap-4">
+                <AudioSettings />
+                <Settings/>
+            </div>
+
         </div>
-    )
-}
-
-export default TopBar
-
-
-const SelectDisplay = () => {
-    const items = [
-        { label: "Light", value: "light" },
-        { label: "Dark", value: "dark" },
-        { label: "System", value: "system" },
-    ]
-    return <div>
-
-        < Select items={items} >
-            <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Theme" />
-            </SelectTrigger>
-            <SelectContent>
-                <SelectGroup>
-                    {items.map((item) => (
-                        <SelectItem key={item.value} value={item.value}>
-                            {item.label}
-                        </SelectItem>
-                    ))}
-                </SelectGroup>
-            </SelectContent>
-    </div>
+    );
 };
+
+
+
+export default TopBar;
