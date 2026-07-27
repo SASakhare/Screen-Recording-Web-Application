@@ -82,33 +82,51 @@ const SelectDisplay = () => {
     const status = useRecorderStore((s) => s.status);
 
     const isBusy = status === "recording" || status === "paused" || status === "selecting";
+    const label = selectedSource ? selectedSource.label : "Select Source";
 
     return (
         <div className="flex items-center gap-3">
             <button
                 onClick={startRecording}
                 disabled={isBusy}
+                title={selectedSource ? selectedSource.label : undefined}
                 className="
                     w-60 h-12 rounded-xl bg-[#24252b] border-none text-white
                     outline-none flex items-center gap-3 px-4
                     hover:bg-[#2c2d34] transition-all disabled:opacity-40
                 "
             >
-                <FaLaptop className="text-purple-400 text-lg" />
-                <span className="text-gray-300">
-                    {selectedSource ? selectedSource.label : "Select Source"}
+                <FaLaptop className="text-purple-400 text-lg shrink-0" />
+                <span className="text-gray-300 truncate">
+                    {label}
                 </span>
             </button>
 
             {selectedSource && (
                 <div
+                    title={selectedSource.label}
                     className="
-                        h-8 px-3 rounded-full bg-[#17151f] border border-purple-500/30
-                        flex items-center gap-2 text-xs text-purple-300 font-semibold
+                        group relative h-8 max-w-40 px-3 rounded-full bg-[#17151f]
+                        border border-purple-500/30 flex items-center gap-2
+                        text-xs text-purple-300 font-semibold cursor-default
                     "
                 >
-                    <div className="w-2 h-2 rounded-full bg-purple-400" />
-                    {selectedSource.label.toUpperCase()}
+                    <div className="w-2 h-2 rounded-full bg-purple-400 shrink-0" />
+                    <span className="truncate">
+                        {selectedSource.label.toUpperCase()}
+                    </span>
+
+                    {/* Full text on hover */}
+                    <span
+                        className="
+                            absolute top-10 left-1/2 -translate-x-1/2
+                            hidden group-hover:block
+                            bg-black text-white text-xs px-3 py-1.5 rounded-lg
+                            whitespace-nowrap border border-white/10 z-50
+                        "
+                    >
+                        {selectedSource.label}
+                    </span>
                 </div>
             )}
         </div>
