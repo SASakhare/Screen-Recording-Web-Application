@@ -16,11 +16,9 @@ const Settings = () => {
         showCursor,
         highlightClicks,
         fps60,
-        countdown,
         toggleShowCursor,
         toggleHighlightClicks,
         toggleFps60,
-        toggleCountdown,
     } = useSettingsStore();
 
     return (
