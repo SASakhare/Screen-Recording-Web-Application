@@ -5,7 +5,7 @@ const App = () => {
   return (
     <div className="min-h-screen min-w-full  bg-black/95 ">
       <TopBar />
-        <VideoComponent />
+      <VideoComponent />
 
     </div>
   )
